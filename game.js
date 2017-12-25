@@ -30,7 +30,6 @@ var drawBorder = function () {
     ctx.fillRect(width - blockSize, blockSize, blockSize, height);
 };
 
-// drawBorder();
 var drawScore = function () {
     ctx.font = '20px Courier';
     ctx.fillStyle = 'black';
@@ -39,14 +38,45 @@ var drawScore = function () {
     ctx.fillText('Счет: ' + score, blockSize, blockSize);
 }
 
-// drawScore();
+// Create button
+var renderButton = function () {
+    var button = document.createElement('button');
+    button.textContent = 'Начать заново';
+    button.style.width = '100px';
+    button.style.height = '40px';
+    button.style.position = 'absolute';
+    button.style.zIndex = '100';
+    button.style.left = '0';
+    button.style.top = (height / 2 + 40) + 'px';
+    button.style.right = '0';
+    button.style.margin = '0 auto';
+    button.style.backgroundColor = 'lightgreen';
+    button.style.borderRadius = '5px';
+    
+    return button;
+}
+
+
+var resetGameHandler = function () {
+    snakeSpeed = 100;
+    score = 0;
+    snake = new Snake();
+    apple = new Apple();
+    gameStart = setInterval(gameProcess, snakeSpeed);
+    this.remove();
+}
+
 var gameOver = function () {
-    clearInterval(intervalId);
+    clearInterval(gameStart);
     ctx.font = '60px Courier';
     ctx.fillStyle = 'black';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('Конец игры', width / 2, height / 2);
+    ctx.fillStyle = 'lightblue';
+    var resetButton = renderButton();
+    document.body.insertAdjacentElement('beforeend', resetButton);
+    resetButton.addEventListener('click', resetGameHandler);
 }
 
 // Конструктор ячеек
@@ -123,9 +153,9 @@ Snake.prototype.move = function () {
         score++;
         apple.move();
         if (snakeSpeed >= 50 && score % speedStep === 0) {
-           snakeSpeed -= speedStep;
-           clearInterval(intervalId);
-           intervalId = setInterval(gameProcess, snakeSpeed);
+            snakeSpeed -= speedStep;
+            clearInterval(gameStart);
+            gameStart = setInterval(gameProcess, snakeSpeed);
         }
     } else {
         this.segments.pop();
@@ -182,7 +212,6 @@ Apple.prototype.move = function () {
 
 var snake = new Snake();
 var apple = new Apple();
-console.log(snakeSpeed);
 
 var gameProcess = function () {
     ctx.clearRect(0, 0, width, height);
@@ -193,7 +222,7 @@ var gameProcess = function () {
     drawBorder();
 }
 
-var intervalId = setInterval(gameProcess, snakeSpeed);
+var gameStart = setInterval(gameProcess, snakeSpeed);
 
 var directions = {
     37: 'left',
