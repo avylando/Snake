@@ -1,8 +1,11 @@
+'use strict';
+
 var canvas = document.querySelector('#canvas');
 var ctx = canvas.getContext('2d');
 var width = canvas.width;
 var height = canvas.height;
-
+var snakeSpeed = 100;
+var speedStep = 5;
 var blockSize = 10;
 var blocksInWidth = width / blockSize;
 var blocksInHeight = height / blockSize;
@@ -119,6 +122,11 @@ Snake.prototype.move = function () {
     if (newHead.equal(apple.position)) {
         score++;
         apple.move();
+        if (snakeSpeed >= 50 && score % speedStep === 0) {
+           snakeSpeed -= speedStep;
+           clearInterval(intervalId);
+           intervalId = setInterval(gameProcess, snakeSpeed);
+        }
     } else {
         this.segments.pop();
     }
@@ -174,15 +182,18 @@ Apple.prototype.move = function () {
 
 var snake = new Snake();
 var apple = new Apple();
-apple.draw();
-var intervalId = setInterval(function () {
+console.log(snakeSpeed);
+
+var gameProcess = function () {
     ctx.clearRect(0, 0, width, height);
     drawScore();
     snake.draw();
     snake.move();
     apple.draw();
     drawBorder();
-}, 100)
+}
+
+var intervalId = setInterval(gameProcess, snakeSpeed);
 
 var directions = {
     37: 'left',
